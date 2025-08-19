@@ -1,10 +1,10 @@
 # Crypto Signal Analyzer
 
-An AI-powered web application that provides professional cryptocurrency trading signals and analysis across multiple timeframes using OpenAI's GPT technology.
+An AI-powered web application that provides professional cryptocurrency trading signals and analysis across multiple timeframes using Google's Gemini AI technology.
 
 ## 🚀 Features
 
-- **AI-Powered Analysis**: Leverages OpenAI's GPT for comprehensive crypto market analysis
+- **AI-Powered Analysis**: Leverages Google's Gemini AI for comprehensive crypto market analysis
 - **Multi-Timeframe Signals**: Get trading signals for 15min, 1h, 4h, and 1-day timeframes  
 - **Real-Time Crypto Prices**: Live BTC and ETH price tracking with 24h change indicators
 - **URL & Text Input**: Analyze news articles via URL or direct text input
@@ -18,7 +18,7 @@ An AI-powered web application that provides professional cryptocurrency trading 
 - **Frontend**: React 18 + Vite
 - **Styling**: Tailwind CSS
 - **State Management**: Zustand
-- **AI Integration**: OpenAI GPT-4 API
+- **AI Integration**: Google Gemini AI API
 - **Crypto Data**: CoinGecko API
 - **Icons**: Heroicons
 
@@ -43,12 +43,24 @@ An AI-powered web application that provides professional cryptocurrency trading 
    npm install
    ```
 
-3. **Get OpenAI API Key**
-   - Visit [OpenAI Platform](https://platform.openai.com/api-keys)
-   - Create a new API key
-   - Keep it secure - you'll enter it in the app settings
+3. **Set up environment variables**
+   ```bash
+   # Run the setup script (recommended)
+   npm run setup
+   
+   # Or manually copy the example environment file
+   cp .env.example .env
+   
+   # Edit .env and add your API keys
+   # Get your Gemini API key from: https://makersuite.google.com/app/apikey
+   ```
 
-4. **Start development server**
+4. **Get Gemini API Key**
+   - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Create a new API key
+   - Add it to your `.env` file as `VITE_GEMINI_API_KEY`
+
+5. **Start development server**
    ```bash
    npm run dev
    ```
@@ -61,7 +73,7 @@ An AI-powered web application that provides professional cryptocurrency trading 
 
 1. **Configure Settings**
    - Click the settings gear icon in the header
-   - Enter your OpenAI API key
+   - Verify your Gemini API key is loaded from environment variables
    - Choose your preferred theme and default settings
 
 2. **Analyze News**
@@ -107,7 +119,7 @@ src/
 │   ├── LoadingSpinner.jsx   # Loading animation
 │   └── SettingsModal.jsx    # Settings configuration
 ├── services/            # API services
-│   └── api.js          # OpenAI & crypto price APIs
+│   └── api.js          # Gemini AI & crypto price APIs
 ├── store/              # State management
 │   └── useAppStore.js  # Zustand store configuration
 ├── App.jsx             # Main app component
@@ -129,7 +141,7 @@ The app uses a carefully chosen 6-color palette:
 - **Educational Use Only**: This tool provides AI-generated analysis for educational purposes
 - **Not Financial Advice**: Always do your own research before making trading decisions
 - **Risk Warning**: Never invest more than you can afford to lose
-- **API Costs**: OpenAI API usage incurs costs based on your usage
+- **API Costs**: Gemini API usage may incur costs based on your usage
 
 ## 🚀 Building for Production
 
@@ -149,7 +161,7 @@ The built files will be in the `dist/` directory, ready for deployment to any st
 
 ## 📄 License
 
-This project is for educational purposes. Please ensure compliance with OpenAI's usage policies and local financial regulations.
+This project is for educational purposes. Please ensure compliance with Google's Gemini AI usage policies and local financial regulations.
 
 ---
 

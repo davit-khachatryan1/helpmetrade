@@ -45,7 +45,7 @@ const InputForm = () => {
 
   const handleAnalyze = async () => {
     if (!apiKey.trim()) {
-      setError('Please set your OpenAI API key in settings first')
+      setError('Please set your Gemini API key in settings first')
       return
     }
 
@@ -118,6 +118,9 @@ const InputForm = () => {
           <label htmlFor="url-input" className="block text-sm font-medium mb-2">
             News URL (Optional)
           </label>
+          <p className="text-sm text-gray-500 mb-2">
+            Paste a link to a crypto news article and the AI will automatically read and analyze it.
+          </p>
           <input
             id="url-input"
             type="url"
@@ -149,6 +152,9 @@ const InputForm = () => {
               {charCount} / 5000
             </span>
           </div>
+          <p className="text-sm text-gray-500 mb-2">
+            Copy and paste the text from any cryptocurrency news article. The AI will analyze it and provide trading signals.
+          </p>
           <textarea
             id="text-input"
             value={inputText}

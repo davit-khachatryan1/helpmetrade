@@ -12,7 +12,7 @@ const useAppStore = create((set, get) => ({
   analysisHistory: [],
   
   // Settings
-  apiKey: 'AIzaSyCBx6tMVgFvrxWybm0M88UUW3WLyv0gCeM',
+  apiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
   settings: {
     notifications: true,
     defaultTimeframe: '1h',

@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import useAppStore from '../store/useAppStore'
 import TimeframeTab from './TimeframeTab'
+import TokenAnalysis from './TokenAnalysis'
+import TopRecommendations from './TopRecommendations'
+import IdentifiedTokens from './IdentifiedTokens'
+import BeginnerGuide from './BeginnerGuide'
+import WelcomeMessage from './WelcomeMessage'
 import LoadingSpinner from './LoadingSpinner'
 
 const AnalysisResults = () => {
@@ -13,11 +18,21 @@ const AnalysisResults = () => {
     clearAnalysis 
   } = useAppStore()
 
+  const [activeView, setActiveView] = useState('overview')
+
   const timeframes = [
     { key: '15min_analysis', label: '15min', display: '15 Min' },
     { key: '1h_analysis', label: '1h', display: '1 Hour' },
     { key: '4h_analysis', label: '4h', display: '4 Hours' },
     { key: '1day_analysis', label: '1day', display: '1 Day' }
+  ]
+
+  const views = [
+    { key: 'overview', label: 'Overview', icon: '📊' },
+    { key: 'identified', label: 'Identified Tokens', icon: '🔍' },
+    { key: 'tokens', label: 'Token Analysis', icon: '🪙' },
+    { key: 'recommendations', label: 'Top Picks', icon: '⭐' },
+    { key: 'guide', label: 'Beginner Guide', icon: '🚀' }
   ]
 
   const copyToClipboard = async () => {
@@ -28,12 +43,22 @@ Crypto Signal Analysis - ${new Date(currentAnalysis.timestamp).toLocaleDateStrin
 
 ${timeframes.map(tf => `
 ${tf.display} Analysis:
-- Action: ${currentAnalysis[tf.key]?.action || 'N/A'}
-- Confidence: ${currentAnalysis[tf.key]?.confidence || 'N/A'}/10
-- Price Prediction: ${currentAnalysis[tf.key]?.price_prediction || 'N/A'}
-- Risk Level: ${currentAnalysis[tf.key]?.risk_level || 'N/A'}
-- Sentiment: ${currentAnalysis[tf.key]?.sentiment_score || 'N/A'}%
+- Action: ${currentAnalysis.overall_market_analysis?.[tf.key]?.action || 'N/A'}
+- Confidence: ${currentAnalysis.overall_market_analysis?.[tf.key]?.confidence || 'N/A'}/10
+- Price Prediction: ${currentAnalysis.overall_market_analysis?.[tf.key]?.price_prediction || 'N/A'}
+- Risk Level: ${currentAnalysis.overall_market_analysis?.[tf.key]?.risk_level || 'N/A'}
+- Sentiment: ${currentAnalysis.overall_market_analysis?.[tf.key]?.sentiment_score || 'N/A'}%
 `).join('')}
+
+${currentAnalysis.identified_tokens ? `
+Identified Tokens:
+${currentAnalysis.identified_tokens.map(token => `- ${token.symbol} (${token.name})`).join('\n')}
+` : ''}
+
+${currentAnalysis.top_recommendations ? `
+Top Recommendations:
+${currentAnalysis.top_recommendations.map(rec => `- ${rec.token}: ${rec.action} (${rec.timeframe}) - ${rec.reason}`).join('\n')}
+` : ''}
 
 Overall Summary: ${currentAnalysis.overall_summary || 'N/A'}
 Risk Warning: ${currentAnalysis.risk_warning || 'N/A'}
@@ -75,46 +100,93 @@ Risk Warning: ${currentAnalysis.risk_warning || 'N/A'}
   }
 
   if (!currentAnalysis) {
-    return (
-      <div className={`${theme === 'dark' ? 'bg-primary text-gray-300' : 'bg-white text-gray-600'} rounded-lg shadow-lg p-12 text-center`}>
-        <div className="space-y-4">
-          <div className="text-6xl">📊</div>
-          <h3 className="text-xl font-semibold">Ready to Analyze</h3>
-          <p>Enter news text or URL above to get AI-powered trading signals across multiple timeframes.</p>
-        </div>
-      </div>
-    )
+    return <WelcomeMessage />
   }
 
-  const activeAnalysis = currentAnalysis[timeframes.find(tf => tf.label === activeTab)?.key]
+  // Handle both old and new analysis formats
+  const overallAnalysis = currentAnalysis.overall_market_analysis || currentAnalysis
+  const activeAnalysis = overallAnalysis[timeframes.find(tf => tf.label === activeTab)?.key]
 
   return (
     <div className={`${theme === 'dark' ? 'bg-secondary' : 'bg-gray-50'} rounded-lg shadow-lg overflow-hidden`}>
-      {/* Tab Navigation */}
+      {/* View Navigation */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-8 px-6" aria-label="Timeframe tabs">
-          {timeframes.map((timeframe) => (
+        <nav className="flex space-x-8 px-6" aria-label="View tabs">
+          {views.map((view) => (
             <button
-              key={timeframe.label}
-              onClick={() => setActiveTab(timeframe.label)}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === timeframe.label
+              key={view.key}
+              onClick={() => setActiveView(view.key)}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center space-x-2 ${
+                activeView === view.key
                   ? 'border-accent text-accent'
                   : `border-transparent ${theme === 'dark' ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'} hover:border-gray-300`
               }`}
             >
-              {timeframe.display}
+              <span>{view.icon}</span>
+              <span>{view.label}</span>
             </button>
           ))}
         </nav>
       </div>
 
-      {/* Tab Content */}
+      {/* View Content */}
       <div className="p-6">
-        <TimeframeTab 
-          timeframe={activeTab} 
-          analysis={activeAnalysis} 
-        />
+        {activeView === 'overview' && (
+          <div className="space-y-6">
+            {/* Timeframe Navigation */}
+            <div className="border-b border-gray-200 dark:border-gray-700">
+              <nav className="flex space-x-8" aria-label="Timeframe tabs">
+                {timeframes.map((timeframe) => (
+                  <button
+                    key={timeframe.label}
+                    onClick={() => setActiveTab(timeframe.label)}
+                    className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === timeframe.label
+                        ? 'border-accent text-accent'
+                        : `border-transparent ${theme === 'dark' ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'} hover:border-gray-300`
+                    }`}
+                  >
+                    {timeframe.display}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            {/* Overall Market Analysis */}
+            <TimeframeTab 
+              timeframe={activeTab} 
+              analysis={activeAnalysis} 
+            />
+          </div>
+        )}
+
+        {activeView === 'identified' && currentAnalysis.identified_tokens && (
+          <IdentifiedTokens tokens={currentAnalysis.identified_tokens} />
+        )}
+
+        {activeView === 'tokens' && currentAnalysis.token_analysis && (
+          <div className="space-y-6">
+            {Object.entries(currentAnalysis.token_analysis).map(([tokenSymbol, tokenData]) => (
+              <TokenAnalysis
+                key={tokenSymbol}
+                tokenSymbol={tokenSymbol}
+                tokenData={tokenData}
+                timeframe={activeTab}
+              />
+            ))}
+          </div>
+        )}
+
+        {activeView === 'recommendations' && currentAnalysis.top_recommendations && (
+          <TopRecommendations
+            recommendations={currentAnalysis.top_recommendations}
+            tokenAnalysis={currentAnalysis.token_analysis}
+          />
+        )}
+
+        {activeView === 'guide' && (
+          <BeginnerGuide />
+        )}
       </div>
 
       {/* Summary Section */}

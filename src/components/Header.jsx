@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
 import useAppStore from '../store/useAppStore'
 import { fetchCryptoPrices } from '../services/api'
+import { formatPrice, formatChange } from '../utils/formatters'
 
 const Header = () => {
   const { theme, setShowSettings } = useAppStore()
-  const [prices, setPrices] = useState({ bitcoin: { usd: 0, usd_24h_change: 0 }, ethereum: { usd: 0, usd_24h_change: 0 } })
+  const [prices, setPrices] = useState({ 
+    BTC: { usd: 0, usd_24h_change: 0, symbol: 'BTC' }, 
+    ETH: { usd: 0, usd_24h_change: 0, symbol: 'ETH' } 
+  })
   const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {
@@ -26,18 +30,7 @@ const Header = () => {
     }
   }, [])
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price)
-  }
 
-  const formatChange = (change) => {
-    return `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`
-  }
 
   return (
     <header className={`${theme === 'dark' ? 'bg-primary text-white' : 'bg-white text-gray-900'} shadow-lg`}>
@@ -55,17 +48,17 @@ const Header = () => {
             <div className="flex items-center space-x-4">
               <div className="text-sm">
                 <span className="text-orange-500 font-semibold">BTC:</span>
-                <span className="ml-1">{formatPrice(prices.bitcoin.usd)}</span>
-                <span className={`ml-1 text-xs ${prices.bitcoin.usd_24h_change >= 0 ? 'text-success' : 'text-danger'}`}>
-                  {formatChange(prices.bitcoin.usd_24h_change)}
+                <span className="ml-1">{formatPrice(prices.BTC?.usd || 0)}</span>
+                <span className={`ml-1 text-xs ${(prices.BTC?.usd_24h_change || 0) >= 0 ? 'text-success' : 'text-danger'}`}>
+                  {formatChange(prices.BTC?.usd_24h_change || 0)}
                 </span>
               </div>
               
               <div className="text-sm">
                 <span className="text-blue-500 font-semibold">ETH:</span>
-                <span className="ml-1">{formatPrice(prices.ethereum.usd)}</span>
-                <span className={`ml-1 text-xs ${prices.ethereum.usd_24h_change >= 0 ? 'text-success' : 'text-danger'}`}>
-                  {formatChange(prices.ethereum.usd_24h_change)}
+                <span className="ml-1">{formatPrice(prices.ETH?.usd || 0)}</span>
+                <span className={`ml-1 text-xs ${(prices.ETH?.usd_24h_change || 0) >= 0 ? 'text-success' : 'text-danger'}`}>
+                  {formatChange(prices.ETH?.usd_24h_change || 0)}
                 </span>
               </div>
             </div>
