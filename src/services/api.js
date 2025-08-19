@@ -1,6 +1,7 @@
-const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
+// Using Gemini 1.5 Flash (free tier model) for cost-effective analysis
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
 
-const ANALYSIS_PROMPT = `You are a crypto trading advisor. Analyze the news and provide trading signals in JSON format:
+const ANALYSIS_PROMPT = `You are a crypto trading advisor. Analyze the news and provide trading signals in JSON format ONLY (no markdown, no code blocks):
 
 {
   "15min_analysis": {"action": "BUY|SELL|HOLD", "confidence": 1-10, "price_prediction": "range", "key_factors": ["factor1", "factor2"], "risk_level": "LOW|MEDIUM|HIGH", "sentiment_score": 1-100},
@@ -11,50 +12,71 @@ const ANALYSIS_PROMPT = `You are a crypto trading advisor. Analyze the news and 
   "risk_warning": "Key risks"
 }
 
-Analyze this crypto news:`
+Return ONLY the JSON object, no markdown formatting. Analyze this crypto news:`
 
 export const analyzeNews = async (text, apiKey) => {
   try {
-    const response = await fetch(OPENAI_API_URL, {
+    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
+        contents: [
           {
-            role: 'system',
-            content: ANALYSIS_PROMPT
-          },
-          {
-            role: 'user',
-            content: text
+            parts: [
+              {
+                text: ANALYSIS_PROMPT + '\n\n' + text
+              }
+            ]
           }
         ],
-        temperature: 0.7,
-        max_tokens: 1000
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 800,
+          topP: 0.8,
+          topK: 40
+        }
       })
     })
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       
-      if (response.status === 429 || errorData.code === 'insufficient_quota') {
-        throw new Error('API quota exceeded. Please check your OpenAI billing or try again later.')
+      if (response.status === 429 || errorData.error?.code === 429) {
+        throw new Error('API quota exceeded. Please check your Gemini API quota or try again later.')
       }
       
-      throw new Error(`API Error: ${response.status} - ${errorData.message || 'Unknown error'}`)
+      throw new Error(`API Error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`)
     }
 
     const data = await response.json()
-    const analysisText = data.choices[0].message.content
+    
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      throw new Error('Invalid response format from Gemini API')
+    }
+    
+    const analysisText = data.candidates[0].content.parts[0].text
     
     try {
-      return JSON.parse(analysisText)
+      // Clean the response text - remove markdown code blocks if present
+      let cleanText = analysisText.trim()
+      
+      // Remove ```json and ``` markers if present
+      if (cleanText.startsWith('```json')) {
+        cleanText = cleanText.replace(/^```json\s*/, '')
+      }
+      if (cleanText.startsWith('```')) {
+        cleanText = cleanText.replace(/^```\s*/, '')
+      }
+      if (cleanText.endsWith('```')) {
+        cleanText = cleanText.replace(/\s*```$/, '')
+      }
+      
+      return JSON.parse(cleanText)
     } catch (parseError) {
       console.error('Failed to parse JSON response:', analysisText)
+      console.error('Parse error:', parseError)
       throw new Error('Invalid response format from AI')
     }
   } catch (error) {

@@ -12,7 +12,7 @@ const useAppStore = create((set, get) => ({
   analysisHistory: [],
   
   // Settings
-  apiKey: '',
+  apiKey: 'AIzaSyCBx6tMVgFvrxWybm0M88UUW3WLyv0gCeM',
   settings: {
     notifications: true,
     defaultTimeframe: '1h',

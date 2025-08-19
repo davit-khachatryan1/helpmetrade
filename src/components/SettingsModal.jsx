@@ -54,7 +54,7 @@ const SettingsModal = () => {
                 {/* API Key Section */}
                 <div>
                   <label htmlFor="api-key" className="block text-sm font-medium mb-2">
-                    OpenAI API Key *
+                    Gemini API Key *
                   </label>
                   <div className="relative">
                     <input
@@ -62,7 +62,7 @@ const SettingsModal = () => {
                       type={showApiKey ? 'text' : 'password'}
                       value={localApiKey}
                       onChange={(e) => setLocalApiKey(e.target.value)}
-                      placeholder="sk-..."
+                      placeholder="AIza..."
                       className={`w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent ${
                         theme === 'dark' ? 'bg-secondary text-white' : 'bg-white text-gray-900'
                       }`}
@@ -84,12 +84,12 @@ const SettingsModal = () => {
                   <p className="text-xs text-gray-500 mt-1">
                     Required for AI analysis. Get your key from{' '}
                     <a 
-                      href="https://platform.openai.com/api-keys" 
+                      href="https://makersuite.google.com/app/apikey" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-accent hover:underline"
                     >
-                      OpenAI Platform
+                      Google AI Studio
                     </a>
                   </p>
                 </div>
